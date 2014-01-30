@@ -1,0 +1,392 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap-theme.css" />
+
+        <script type="text/javascript" src="./bower_components/jquery/jquery.js" > </script>
+        <script type="text/javascript" src="./bower_components/underscore/underscore.js"></script>
+        <script type="text/javascript" src="./bower_components/bootstrap/dist/js/bootstrap.js"> </script>
+
+        <script type="text/javascript" src="./scripts/formHandler.js"></script>
+
+        <title>
+            Assessment Form
+        </title>
+
+        <script type="text/javascript">
+
+            var receivedJsonObj = { 
+                                    assessment_date: "2013-12-20", 
+                                    bmi: "24", 
+                                    comments: "this%0D%0A%2B_)(%26%5E%25%24%23%40!%7C%7D%7B%3A%22%3C%3E%3F%2F.%2C&#x27;%3B%5C%5D%5B%0D%0A432423 ",
+                                    diet: "normal", 
+                                    heightInput: "175", 
+                                    inpatient_extra_input: "ward1", 
+                                    interview_location: "inpatient", 
+                                    notes: "normal diet", 
+                                    option1: "1", 
+                                    other_extra_input: " ", 
+                                    outpatient_extra_input: "", 
+                                    text_select: "4", 
+                                    weightInput: "75"
+                                };
+
+
+            var receivedJsonObjStr = JSON.stringify(receivedJsonObj);
+            window.onready = function(){
+                var interview_loc_radios = document.getElementsByName('interview_location');
+                for(var i = 0; i < interview_loc_radios.length; i++){
+                    interview_loc_radios[i].addEventListener('click', checkInterViewLocation, false);
+                }
+
+                document.getElementById('heightInput').addEventListener('change', calculateBmi, false);
+                document.getElementById('weightInput').addEventListener('change', calculateBmi, false);
+
+                var formElem = document.querySelector('form');
+
+                //prefillForm(JSON.parse(receivedJsonObj));
+                console.debug(JSON.stringify(receivedJsonObj));
+                FormHandler.fillForm(JSON.parse(receivedJsonObjStr));
+                //FormHandler.resetForm('dietition_assessment');
+            }
+
+            function submitForm() {
+                var myjson = FormHandler.generateJSON('dietition_assessment');
+                console.debug(myjson);
+            }
+
+            function reset(){
+                FormHandler.resetForm('dietition_assessment');
+            }
+
+            function checkInterViewLocation(event){
+                console.log(event.srcElement.value);
+                var selectedInterviewLoc = event.srcElement.value;
+                if(selectedInterviewLoc == "inpatient"){
+                    document.getElementById('inpatient_extra').classList.remove('hide');
+                    document.getElementById('outpatient_extra').classList.add('hide');
+                    document.getElementById('other_extra').classList.add('hide');
+                } else if(selectedInterviewLoc == "outpatient") {
+                    document.getElementById('inpatient_extra').classList.add('hide');
+                    document.getElementById('outpatient_extra').classList.remove('hide');
+                    document.getElementById('other_extra').classList.add('hide');
+                } else if (selectedInterviewLoc == "other"){
+                    document.getElementById('inpatient_extra').classList.add('hide');
+                    document.getElementById('outpatient_extra').classList.add('hide');
+                    document.getElementById('other_extra').classList.remove('hide');
+                }
+            }
+
+            // BMI calculation
+            function calculateBmi(event) {
+                var weight = document.getElementById('weightInput').value;
+                var height = document.getElementById('heightInput').value;
+                if(weight > 0 && height > 0) {
+                    var finalBmi = Math.round( weight/(height/100*height/100) );
+                    document.getElementById('bmiInput').value = finalBmi;
+                    if(finalBmi < 18.5){
+                        document.getElementById('bmi-meaning').innerHTML = "<p class='text-primary'>Too thin</p>";
+                    } if(finalBmi > 18.5 && finalBmi < 25){
+                        document.getElementById('bmi-meaning').innerHTML = "<p class='text-success'>Healthy</p>";
+                    } if(finalBmi > 25){
+                        document.getElementById('bmi-meaning').innerHTML = "<p class='text-danger'>Overweight</p>";
+                    }
+                }
+                else{
+                    //alert("Please Fill in everything correctly")
+                }
+            }
+
+        </script>
+    </head>
+    <body>
+
+        <style>
+            .hide {
+                display: none;
+            }
+
+            .show {
+                display: block;
+            }
+
+        </style>
+
+        <div class="container">
+
+            <div class="row">
+                <button class="btn btn-info" onclick="reset();">Reset</button>
+            </div>
+
+            <form action="javascript:void(0);" method="POST" name="dietition_assessment" id="dietition_assessment">
+                <div class="row">
+                    <div class="col-sm-5 page-header">
+                        <h1>Dietitian Assessment</h1>
+                    </div>
+                    <div class="col-sm-7 ">
+                        <div class="panel panel-info">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Patient Details</h3>
+                            </div>
+                            <div class="panel-body form-horizontal" id="">
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">URN:</label>
+                                <div class="col-sm-7">
+                                    <p class="form-control-static">[[PMI.URN]]</p>
+
+                                    <!--<input type="TEXT" disabled class="col-10 form-control" value="[[PMI.URN]]" />-->
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Family Name:</label>
+                                <div class="col-sm-7">
+                                    <p class="form-control-static">[[PMI.LASTNAME]]</p>
+                                    <!--<input type="TEXT" disabled class="col-10 form-control" value="[[PMI.LASTNAME]]" />-->
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Given Name:</label>
+                                <div class="col-sm-7">
+                                    <p class="form-control-static">[[PMI.FIRSTNAME]]</p>
+                                    <!--<input type="TEXT" disabled class="col-10 form-control" value="[[PMI.FIRSTNAME]]" />-->
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">DOB:</label>
+                                <div class="col-sm-7">
+                                    <p class="form-control-static">[[PMI.DOB]]</p>
+                                    <!--<input type="TEXT" disabled class="col-10 form-control" value="[[PMI.DOB]]" />-->
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">Sex:</label>
+                                <div class="col-sm-7">
+                                    <p class="form-control-static">[[PMI.SEX]]</p>
+                                    <!--<input type="TEXT" disabled class="col-10 form-control" value="[[PMI.SEX]]" />-->
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-5 control-label">P/S:</label>
+                                <div class="col-sm-7">
+                                    <p class="form-control-static">[[PMI.STATUS]]</p>
+                                    <!--<input type="TEXT" disabled class="col-10 form-control" value="[[PMI.STATUS]]" />-->
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row form-horizontal">
+                    <div class="form-group col-sm-8 checkbox">
+                        <label class="col-sm-4 control-label">
+                            <input type="checkbox" name="option1" value="1"> Option 1
+                        </label>
+                    </div>
+                </div>
+
+                <div class="row form-horizontal">
+                    <div class="form-group col-sm-8">
+                        <label class="control-label">Testing Dropdown:</label>
+                            <select name="text_select" class="form-control">
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                            </select>
+                    </div>
+                </div>
+
+                <div class="row form-horizontal">
+                    <div class="form-group col-sm-8">
+                        <label class="col-sm-4 control-label">Assessment Date:</label>
+                        <div class="col-sm-6">
+                            <input type="date" name="assessment_date" placeholder="dd/mm/yyyy" class="col-sm-12 form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Interview Location</h3>
+                        </div>
+                        <div class="form-group panel-body">
+                            <div class="col-sm-12">
+                                <div class="col-sm-6">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="interview_location" value="inpatient"> Inpatient
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="interview_location" value="outpatient"> Outpatient
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="interview_location" value="other"> Other
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group col-sm-12 hide" id="inpatient_extra" >
+                                        <label for="inpatient_extra_input" class="control-label">Ward:</label>
+                                        <div class="">
+                                            <input type="TEXT" class="form-control" name="inpatient_extra_input" id="inpatient_extra_input" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group col-sm-12 hide" id="outpatient_extra" >
+                                        <label for="outpatient_extra_input" class="control-label">Clinic:</label>
+                                        <div class="">
+                                            <input type="TEXT" class="form-control" name="outpatient_extra_input" id="outpatient_extra_input" />
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group col-sm-12 hide" id="other_extra" >
+                                        <label for="other_extra_input" class="control-label">Other:</label>
+                                        <div class="">
+                                            <textarea class="form-control" id="other_extra_input" name="other_extra_input"> </textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Diet Details</h3>
+                        </div>
+                        <div class="form-group panel-body">
+                            <div class="col-sm-12">
+                                <div class="col-sm-6">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="diet" value="normal"> Normal Diet
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="diet" value="bland"> Bland Diet
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="diet" value="nilorally"> Nil Orally
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label>Special Notes:</label>
+                                        <textarea name="notes" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                 <div class="row">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Measure</h3>
+                        </div>
+
+                        <div class="form-group panel-body">
+                            <div class="row">
+                                <div class="col-sm-6"></div>
+                                <div class="form-group form-horizontal col-sm-6">
+                                    <label for="bmiInput" class="col-sm-2 control-label">BMI:</label>
+                                    <div class="col-sm-7">
+                                        <input type="TEXT" name="bmi" disabled class="form-control" name="bmiInput" id="bmiInput" placeholder="" />
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <span id="bmi-meaning" class="control-label"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6 form-group form-horizontal">
+                                    <label for="heightInput" class="col-sm-2 control-label">Height:</label>
+                                    <div class="col-sm-9">
+                                        <input type="NUMBER" name="heightInput" id="heightInput" class="form-control" placeholder="" />
+                                    </div>
+                                    <div class="col-sm-1 control-label">
+                                        <span>cm</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6 form-group form-horizontal">
+                                    <label for="weightInput" class="col-sm-2 control-label">Weight:</label>
+                                    <div class="col-sm-9">
+                                        <input type="NUMBER" name="weightInput" id="weightInput" class="form-control" pattern="\d+(\.\d+)?" placeholder="" />
+                                    </div>
+                                    <div class="col-sm-1 control-label">
+                                        <span>kg</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Comments</h3>
+                        </div>
+                        <div class="panel-body form-group">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <textarea name="comments" class="form-control"> </textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-6"></div>
+                    <div class="col-sm-6 form-horizontal">
+
+                        <div class="row form-group">
+                            <label class="col-sm-4 control-label" for="dietition">Dietitian:</label>
+                            <div class="col-sm-8">
+                                <input type="TEXT" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="row form-group">
+                            <label class="col-sm-4 control-label" for="report-date">Report Date:</label>
+                            <div class="col-sm-8">
+                                <input type="date" class="form-control" id="report-date" />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <input type="submit" class="btn btn-primary" value="Submit" onclick="submitForm()" ></input>
+
+            </form>
+        </div>
+
+    </body>
+
+</html>
